@@ -1,0 +1,8 @@
+# Copilot skill run artifacts (jsonl/md/status/task/session/ask/answer/pid/stdout/usage.json)
+.copilot-runs/
+
+# Built Go runner for /copilot-sdk (built on first invocation)
+.agents/skills/copilot-sdk/bin/
+
+# Scratch file used by `just tmp` (per AGENTS.md workflow)
+tmp.sh
