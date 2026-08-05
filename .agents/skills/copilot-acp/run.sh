@@ -19,12 +19,21 @@ if [ "${1:-}" = "--bootstrap" ]; then
   bash "$SHARED_BOOTSTRAP"
   echo "---"
   echo "installing ACP Python SDK..."
-  # #11: PEP-668 ("externally-managed-environment") safe install. Try
-  # plain pip first; if it refuses, fall back to --break-system-packages
-  # (still scoped to the current Python install, which is what the user
-  # asked for by invoking --bootstrap).
-  if ! python3 -m pip install --quiet -r "$SKILL_DIR/requirements.txt" 2>/dev/null; then
-    python3 -m pip install --quiet --break-system-packages -r "$SKILL_DIR/requirements.txt"
+  # #11: PEP-668 ("externally-managed-environment") safe install. The SDK
+  # must be importable by the bare `python3` that runs runner.py, so it
+  # goes into the system environment (`uv pip --system`), never an
+  # isolated tool venv. Both paths retry with --break-system-packages
+  # because a global install is what --bootstrap is asking for.
+  if command -v uv >/dev/null 2>&1; then
+    echo "  using uv"
+    if ! uv pip install --quiet --system -r "$SKILL_DIR/requirements.txt" 2>/dev/null; then
+      uv pip install --quiet --system --break-system-packages -r "$SKILL_DIR/requirements.txt"
+    fi
+  else
+    echo "  using pip (uv not found)"
+    if ! python3 -m pip install --quiet -r "$SKILL_DIR/requirements.txt" 2>/dev/null; then
+      python3 -m pip install --quiet --break-system-packages -r "$SKILL_DIR/requirements.txt"
+    fi
   fi
   python3 -c "import acp; print(f'acp: ok ({acp.__file__})')"
   exit $?
