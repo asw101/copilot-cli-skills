@@ -35,7 +35,7 @@ The Go source lives in `scripts/`:
 |---|---|
 | `/copilot-sdk --bootstrap` | Run shared copilot bootstrap + build the Go runner. |
 | `/copilot-sdk <task>` | Sync SDK run. |
-| `/copilot-sdk --model claude-opus-4.7 <task>` | Override model. |
+| `/copilot-sdk --model claude-opus-5 <task>` | Override model. |
 | `/copilot-sdk-check <run-id>` | Use shared check.sh (same as `/copilot-cli-check`). |
 | `/copilot-sdk-cancel <run-id>` | Use shared cancel.sh. |
 
@@ -56,9 +56,10 @@ Identical layout to the sibling skills, run-id prefixed with `-sdk-`:
 
 ## Defaults
 
-- **Model**: `claude-opus-4.7` (env: `COPILOT_MODEL`, flag: `--model`).
+- **Model**: `claude-opus-5` (env: `COPILOT_MODEL`, flag: `--model`).
 - **Permission handler**: `PermissionHandler.ApproveAll` (auto-approves tool requests). Swap this in `scripts/main.go` if you want manual control.
-- **Reasoning effort**: `xhigh` (env: `COPILOT_REASONING_EFFORT`, flag: `--effort`). The SDK passes this through `SessionConfig.ReasoningEffort`; the upstream server caps per-model and may reject unsupported values.
+- **Reasoning effort**: `high` (env: `COPILOT_REASONING_EFFORT`, flag: `--effort`). Passed through `SessionConfig.ReasoningEffort`, which documents `low/medium/high/xhigh/max`.
+- **Context tier**: `long_context` (1M) via `SessionConfig.ContextTier` (env: `COPILOT_CONTEXT_TIER`, flag: `--context`).
 - **Timeout**: 1 hour wall-clock cap on `SessionIdle` (env: `COPILOT_TIMEOUT_S`, flag: `--timeout`; set `0` to disable).
 
 ## Status: public preview

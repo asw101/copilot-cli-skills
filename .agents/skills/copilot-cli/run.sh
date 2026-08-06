@@ -35,12 +35,14 @@ if ! command -v python3 >/dev/null 2>&1; then
 fi
 
 # Parse optional flags before the task. Recognized:
-#   --model <id>   set COPILOT_MODEL for this run (default: claude-opus-4.7)
-#   --effort <lv>  set COPILOT_REASONING_EFFORT (low|medium|high|xhigh; default: xhigh)
+#   --model <id>   set COPILOT_MODEL for this run (default: claude-opus-5)
+#   --effort <lv>  set COPILOT_REASONING_EFFORT (low|medium|high|xhigh; default: high)
+#   --context <t>  set COPILOT_CONTEXT_TIER (default|long_context; default: long_context)
 while [ $# -gt 0 ]; do
   case "${1:-}" in
     --model)  export COPILOT_MODEL="$2"; shift 2 ;;
     --effort) export COPILOT_REASONING_EFFORT="$2"; shift 2 ;;
+    --context) export COPILOT_CONTEXT_TIER="$2"; shift 2 ;;
     --) shift; break ;;
     --*) echo "unknown flag: $1" >&2; exit 2 ;;
     *) break ;;
@@ -48,14 +50,16 @@ while [ $# -gt 0 ]; do
 done
 
 if [ $# -lt 1 ] || [ -z "$1" ]; then
-  echo "usage: run.sh [--model id] [--effort lvl] \"<task>\"" >&2
+  echo "usage: run.sh [--model id] [--effort lvl] [--context tier] \"<task>\"" >&2
   exit 2
 fi
 
 TASK="$1"
 
 slugify() {
-  echo "$1" | tr '[:upper:]' '[:lower:]' \
+  # Flatten newlines first: sed is line-oriented, so a multi-line task would
+  # otherwise yield a multi-line slug and an unusable filename.
+  printf '%s' "$1" | tr '\n\r' '  ' | tr '[:upper:]' '[:lower:]' \
     | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g' \
     | cut -c1-40 \
     | sed -E 's/-+$//'

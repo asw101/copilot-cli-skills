@@ -30,11 +30,17 @@ from pathlib import Path
 import acp
 
 
-DEFAULT_MODEL = os.environ.get("COPILOT_MODEL", "claude-opus-4.7")
-# ACP server caps reasoning effort per-model and rejects unsupported values
-# (e.g. opus-4.7 today only accepts 'medium'). Leave unset to use the
-# server default; set via env if you want to override.
-DEFAULT_EFFORT = os.environ.get("COPILOT_REASONING_EFFORT")
+DEFAULT_MODEL = os.environ.get("COPILOT_MODEL", "claude-opus-5")
+# ACP server caps reasoning effort per-model and rejects unsupported values.
+# Config is applied best-effort below: a rejected key is written to the
+# transcript and the run continues on the server default, so setting this
+# is safe even where the server disagrees.
+DEFAULT_EFFORT = os.environ.get("COPILOT_REASONING_EFFORT", "high")
+# NOTE: there is deliberately no context-tier setting here. The ACP server
+# exposes exactly four config options — mode, model, reasoning_effort,
+# allow_all — and rejects 'context_tier' with "Unknown config option".
+# ACP sessions therefore always run at the default context window; use the
+# cli or sdk backend when the 1M (long_context) tier is required.
 
 
 def summary_line(usage: dict) -> str:

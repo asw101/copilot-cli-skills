@@ -40,8 +40,9 @@ Pass stdout from the dispatcher straight back to the user; each backend already 
 ## Defaults
 
 - **Backend**: `cli`
-- **Model**: `claude-opus-4.7` (override: `--model`, env `COPILOT_MODEL`)
-- **Reasoning effort**: `xhigh` (CLI), `high` (ACP/SDK — they cap at high)
+- **Model**: `claude-opus-5` (override: `--model`, env `COPILOT_MODEL`)
+- **Reasoning effort**: `high` on all three backends (ACP verified by config read-back; SDK accepts up to `max`)
+- **Context tier**: `long_context` (1M) on `cli` and `sdk`. **Not available on `acp`** — the ACP server exposes only mode/model/reasoning_effort/allow_all, so ACP sessions always use the default window.
 
 ## Files
 

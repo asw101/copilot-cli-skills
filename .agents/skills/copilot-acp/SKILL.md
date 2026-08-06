@@ -20,7 +20,7 @@ If you need maximum control over per-tool execution, prefer `/copilot-acp`. For 
 | User input | What to do |
 |---|---|
 | `/copilot-acp <task>` | Sync ACP run. Streams the agent message into the transcript. Minimal stdout. |
-| `/copilot-acp --model claude-opus-4.7 <task>` | Override model. |
+| `/copilot-acp --model claude-opus-5 <task>` | Override model. |
 | `/copilot-acp --effort high <task>` | Override reasoning effort (ACP accepts low / medium / high). |
 | `/copilot-acp-check <run-id>` | Use shared check.sh — same as `/copilot-cli-check`. |
 | `/copilot-acp-cancel <run-id>` | Use shared cancel.sh — same as `/copilot-cli-cancel`. |
@@ -42,8 +42,9 @@ Identical layout to `/copilot-cli`, run-id prefixed with `-acp-`:
 
 ## Defaults
 
-- **Model**: `claude-opus-4.7` (env: `COPILOT_MODEL`).
-- **Reasoning effort**: `high` (ACP exposes low/medium/high — note: ACP server here doesn't surface `xhigh` as an option, unlike the CLI flag).
+- **Model**: `claude-opus-5` (env: `COPILOT_MODEL`).
+- **Reasoning effort**: `high`. Probing the live server shows it accepts `none/low/medium/high/xhigh/max`; `high` is confirmed applied via config read-back.
+- **Context tier**: not supported. The server's only config options are `mode`, `model`, `reasoning_effort`, `allow_all`; `context_tier` is rejected as an unknown option. Use `cli` or `sdk` for the 1M window.
 - **allow_all**: `on` (session option, applied at session/new).
 
 ## What's not built yet

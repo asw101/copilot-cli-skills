@@ -17,8 +17,9 @@ Pause/resume uses the .ask/.answer protocol from /copilot. When a
 session id is captured, resume uses `copilot --resume <session>` so
 Copilot keeps its full prior context.
 
-Model defaults: claude-opus-4.7 with --reasoning-effort xhigh.
-Overrides: COPILOT_MODEL and COPILOT_REASONING_EFFORT env vars.
+Model defaults: claude-opus-5 with --reasoning-effort high and the
+long_context (1M) context tier.
+Overrides: COPILOT_MODEL, COPILOT_REASONING_EFFORT, COPILOT_CONTEXT_TIER.
 
 Usage:
   runner.py <run_id> <transcript_md> <status> <taskfile>
@@ -31,8 +32,15 @@ import sys
 import time
 from pathlib import Path
 
-DEFAULT_MODEL = os.environ.get("COPILOT_MODEL", "claude-opus-4.7")
-DEFAULT_EFFORT = os.environ.get("COPILOT_REASONING_EFFORT", "xhigh")
+DEFAULT_MODEL = os.environ.get("COPILOT_MODEL", "claude-opus-5")
+DEFAULT_EFFORT = os.environ.get("COPILOT_REASONING_EFFORT", "high")
+
+# Context window tier. "long_context" selects the 1M window on models that
+# offer tiered context; "default" selects the standard window. The CLI
+# validates this value and errors on anything else, so an unsupported tier
+# fails loudly rather than silently downgrading. Set COPILOT_CONTEXT_TIER=""
+# to omit the flag entirely.
+DEFAULT_CONTEXT_TIER = os.environ.get("COPILOT_CONTEXT_TIER", "long_context")
 
 # Models known to REJECT --reasoning-effort. Inverted from the prior
 # allowlist so newly-shipped reasoning models "just work" without code
@@ -129,6 +137,8 @@ def run_copilot(
         cmd += ["--model", DEFAULT_MODEL]
     if DEFAULT_EFFORT and DEFAULT_MODEL not in THINKING_INCAPABLE:
         cmd += ["--reasoning-effort", DEFAULT_EFFORT]
+    if DEFAULT_CONTEXT_TIER:
+        cmd += ["--context", DEFAULT_CONTEXT_TIER]
     if resume_session:
         cmd += ["--resume", resume_session]
     cmd += ["-p", prompt]

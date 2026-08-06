@@ -6,7 +6,7 @@
 #   multi.sh <comma-separated-models> "<task>"
 #
 # Example:
-#   multi.sh claude-opus-4.7,claude-haiku-4.5,gpt-5.2 "What is 7*9?"
+#   multi.sh claude-opus-5,claude-haiku-4.5,gpt-5.2 "What is 7*9?"
 #
 # Each model runs as an independent sync invocation (run.sh --model X),
 # writing its normal .copilot-runs/<id>.* set. We collect each run's

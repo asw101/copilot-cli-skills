@@ -77,8 +77,12 @@ func main() {
 		os.Exit(143)
 	}()
 
-	model := envDefault("COPILOT_MODEL", "claude-opus-4.7")
-	effort := envDefault("COPILOT_REASONING_EFFORT", "xhigh")
+	model := envDefault("COPILOT_MODEL", "claude-opus-5")
+	effort := envDefault("COPILOT_REASONING_EFFORT", "high")
+	// Context window tier: "long_context" is the 1M window, "default" the
+	// standard one. SessionConfig.ContextTier is a plain string type, so an
+	// unknown value is passed through and rejected upstream rather than here.
+	contextTier := envDefault("COPILOT_CONTEXT_TIER", string(copilot.ContextTierLongContext))
 
 	// #16: timeout configurable via COPILOT_TIMEOUT_S (default 1 hour; 0 = unlimited).
 	timeoutS := 3600
@@ -99,6 +103,7 @@ func main() {
 	session, err := client.CreateSession(context.Background(), &copilot.SessionConfig{
 		Model:               model,
 		ReasoningEffort:     effort,
+		ContextTier:         copilot.ContextTier(contextTier),
 		OnPermissionRequest: copilot.PermissionHandler.ApproveAll,
 	})
 	if err != nil {
@@ -117,8 +122,8 @@ func main() {
 		mu        sync.Mutex
 		finalText strings.Builder
 		// Per-turn aggregation from AssistantUsageData.
-		totalIn, totalOut, totalCacheR, totalCacheW, totalReason float64
-		usageDurationMs                                          float64
+		totalIn, totalOut, totalCacheR, totalCacheW, totalReason int64
+		usageDurationMs                                          int64
 		// #12: premium-request-equivalent count. AssistantUsageData.Cost is
 		// NOT USD — it's a premium-request count per turn. SessionShutdownData
 		// provides an authoritative total that supersedes the per-turn sum.
@@ -183,7 +188,9 @@ func main() {
 		case *copilot.SessionShutdownData:
 			// #12: premium-request count lives here, NOT in AssistantUsageData.Cost.
 			mu.Lock()
-			premiumRequests = d.TotalPremiumRequests
+			if d.TotalPremiumRequests != nil {
+				premiumRequests = *d.TotalPremiumRequests
+			}
 			if d.TotalAPIDurationMs > 0 {
 				usageDurationMs = d.TotalAPIDurationMs
 			}
@@ -297,14 +304,14 @@ func main() {
 	mu.Lock()
 	final := finalText.String()
 	durationS := time.Since(startTime).Seconds()
-	apiDurS := usageDurationMs / 1000.0
+	apiDurS := float64(usageDurationMs) / 1000.0
 	usage := map[string]any{
 		"run_id":             runID,
 		"backend":            "sdk",
 		"model":              modelSeen,
 		"exit_code":          0,
 		"premium_requests":   premiumRequests, // #12: premium-request-equivalent count
-		"cost_usd":           nil,             // USD not surfaced by SDK v0.3.0
+		"cost_usd":           nil,             // USD not surfaced by SDK v1.0.9
 		"duration_s":         durationS,
 		"duration_kind":      "wall_clock",
 		"input_tokens":       int(totalIn),

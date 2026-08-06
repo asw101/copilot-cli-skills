@@ -26,6 +26,7 @@ while [ $# -gt 0 ]; do
   case "${1:-}" in
     --model)  export COPILOT_MODEL="$2"; shift 2 ;;
     --effort) export COPILOT_REASONING_EFFORT="$2"; shift 2 ;;
+    --context) export COPILOT_CONTEXT_TIER="$2"; shift 2 ;;
     --timeout) export COPILOT_TIMEOUT_S="$2"; shift 2 ;;
     --) shift; break ;;
     --*) echo "unknown flag: $1" >&2; exit 2 ;;
@@ -34,7 +35,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ $# -lt 1 ] || [ -z "$1" ]; then
-  echo "usage: run.sh --bootstrap | run.sh [--model id] [--effort lvl] [--timeout s] \"<task>\"" >&2
+  echo "usage: run.sh --bootstrap | run.sh [--model id] [--effort lvl] [--context tier] [--timeout s] \"<task>\"" >&2
   exit 2
 fi
 
@@ -51,7 +52,9 @@ fi
 TASK="$1"
 
 slugify() {
-  echo "$1" | tr '[:upper:]' '[:lower:]' \
+  # Flatten newlines first: sed is line-oriented, so a multi-line task would
+  # otherwise yield a multi-line slug and an unusable filename.
+  printf '%s' "$1" | tr '\n\r' '  ' | tr '[:upper:]' '[:lower:]' \
     | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g' \
     | cut -c1-40 \
     | sed -E 's/-+$//'

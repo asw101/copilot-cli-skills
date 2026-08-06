@@ -1,6 +1,6 @@
 ---
 name: copilot-cli
-description: Delegate to GitHub Copilot CLI via its `--output-format json` stream. Python runner parses JSONL events into a structured transcript with full event replay. Default model claude-opus-4.7 + xhigh reasoning. Pass --model / --effort to override; --multi to fan out across models.
+description: Delegate to GitHub Copilot CLI via its `--output-format json` stream. Python runner parses JSONL events into a structured transcript with full event replay. Default model claude-opus-5 + high reasoning + long_context (1M) window. Pass --model / --effort / --context to override; --multi to fan out across models.
 allowed-tools: Bash, Read, Write, Glob
 ---
 
@@ -37,8 +37,9 @@ If you're not sure which to use, use `/copilot-cli` — it's the workhorse.
 
 ## Defaults
 
-- **Model**: `claude-opus-4.7` (override: `--model`, `COPILOT_MODEL`).
-- **Reasoning effort**: `xhigh`. Auto-skipped when the model doesn't support it (Haiku).
+- **Model**: `claude-opus-5` (override: `--model`, `COPILOT_MODEL`).
+- **Reasoning effort**: `high` (override: `--effort`, `COPILOT_REASONING_EFFORT`). Auto-skipped when the model doesn't support it (Haiku).
+- **Context tier**: `long_context` — the 1M window (override: `--context`, `COPILOT_CONTEXT_TIER`; `default` for the standard window). The CLI validates the value and errors on anything but `default`/`long_context`.
 - **Tool approval**: `--allow-all-tools` (required for non-interactive). Pause-for-input via the wrapper-prompt `.ask` protocol.
 
 ## Run-files protocol (`.copilot-runs/<run-id>.*`)
