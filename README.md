@@ -27,6 +27,8 @@ bash .agents/skills/copilot/route.sh --compare "What's 7*9?"
 bash .agents/skills/copilot/route.sh --usage
 ```
 
+All three backends default to `gpt-5.6-sol`. Use `--model claude-opus-5` to select the fully supported Claude option for one run; see [Model choice](.agents/skills/copilot/README.md#model-choice).
+
 ## Auth
 
 Set **`COPILOT_GITHUB_TOKEN`**. The CLI checks `COPILOT_GITHUB_TOKEN`, then
@@ -61,9 +63,9 @@ rather than loudly.
 Every run's last stdout line follows this shape — fields omitted when the backend doesn't surface them:
 
 ```
-[exit 0 · cli/claude-opus-5 · premium 7.5 · in/out: 0/7 · 4.7s]
-[exit 0 · acp/claude-opus-5 · 6.2s]
-[exit 0 · sdk/claude-opus-5 · premium 7.50 · in/out: 22503/7 · cache: 11844↑/10659↓ · 2.7s]
+[exit 0 · cli/gpt-5.6-sol · premium 7.5 · in/out: 0/7 · 4.7s]
+[exit 0 · acp/gpt-5.6-sol · 6.2s]
+[exit 0 · sdk/gpt-5.6-sol · premium 7.50 · in/out: 22503/7 · cache: 11844↑/10659↓ · 2.7s]
 ```
 
 Run artifacts land in `.copilot-runs/<run-id>.{jsonl,md,status,task,session,usage.json}` — raw event stream, rendered transcript, and a shared `usage.json` schema across all three backends. `check.sh` / `cancel.sh` from any backend work uniformly thanks to the shared protocol.

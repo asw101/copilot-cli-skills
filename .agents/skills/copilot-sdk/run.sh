@@ -33,6 +33,9 @@ if [ "${1:-}" = "--bootstrap" ]; then
   exit $?
 fi
 
+# Default model; --model overrides it for this run.
+: "${COPILOT_MODEL:=gpt-5.6-sol}"
+export COPILOT_MODEL
 while [ $# -gt 0 ]; do
   case "${1:-}" in
     --model)  export COPILOT_MODEL="$2"; shift 2 ;;

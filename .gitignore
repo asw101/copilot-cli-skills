@@ -6,3 +6,7 @@
 
 # Scratch file used by `just tmp` (per AGENTS.md workflow)
 tmp.sh
+
+# Python bytecode from local syntax checks.
+__pycache__/
+*.pyc

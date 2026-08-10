@@ -77,7 +77,7 @@ func main() {
 		os.Exit(143)
 	}()
 
-	model := envDefault("COPILOT_MODEL", "claude-opus-5")
+	model := envDefault("COPILOT_MODEL", "gpt-5.6-sol")
 	effort := envDefault("COPILOT_REASONING_EFFORT", "high")
 	// Context window tier: "long_context" is the 1M window, "default" the
 	// standard one. SessionConfig.ContextTier is a plain string type, so an

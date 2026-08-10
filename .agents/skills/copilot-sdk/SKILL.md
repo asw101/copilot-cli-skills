@@ -56,7 +56,7 @@ Identical layout to the sibling skills, run-id prefixed with `-sdk-`:
 
 ## Defaults
 
-- **Model**: `claude-opus-5` (env: `COPILOT_MODEL`, flag: `--model`).
+- **Model**: `gpt-5.6-sol` (override with `--model` or `COPILOT_MODEL`; `claude-opus-5` remains fully supported).
 - **Permission handler**: `PermissionHandler.ApproveAll` (auto-approves tool requests). Swap this in `scripts/main.go` if you want manual control.
 - **Reasoning effort**: `high` (env: `COPILOT_REASONING_EFFORT`, flag: `--effort`). Passed through `SessionConfig.ReasoningEffort`, which documents `low/medium/high/xhigh/max`.
 - **Context tier**: `long_context` (1M) via `SessionConfig.ContextTier` (env: `COPILOT_CONTEXT_TIER`, flag: `--context`).

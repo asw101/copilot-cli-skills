@@ -50,9 +50,11 @@ if ! command -v python3 >/dev/null 2>&1; then
 fi
 
 # Parse optional flags before the task. Recognized:
-#   --model <id>   set COPILOT_MODEL for this run (default: claude-opus-5)
+#   --model <id>   set COPILOT_MODEL for this run (default: gpt-5.6-sol)
 #   --effort <lv>  set COPILOT_REASONING_EFFORT (low|medium|high|xhigh; default: high)
 #   --context <t>  set COPILOT_CONTEXT_TIER (default|long_context; default: long_context)
+: "${COPILOT_MODEL:=gpt-5.6-sol}"
+export COPILOT_MODEL
 while [ $# -gt 0 ]; do
   case "${1:-}" in
     --model)  export COPILOT_MODEL="$2"; shift 2 ;;

@@ -27,6 +27,10 @@ Three sibling skills delegate work to GitHub Copilot CLI via different integrati
 - **`/copilot-acp` when you want to intercept per-tool execution.** ACP gives you a real permission-request RPC you can route to a human or a policy engine. The wire is JSON-RPC, so building a type-safe client on top is straightforward (e.g. `pip install agent-client-protocol`).
 - **`/copilot-sdk` for the deepest data and Go ergonomics.** The Go SDK surfaces token/cache/reasoning data per turn — the richest cost telemetry of the three. Pick this when you're integrating Copilot into a larger Go service or need exact billing visibility.
 
+## Model choice
+
+All three backends default to `gpt-5.6-sol`. Model selection is per run, and `claude-opus-5` remains fully supported on every backend: pass `--model claude-opus-5`.
+
 ## Token consumption tracking
 
 Every run writes `.copilot-runs/<run-id>.usage.json` with this shared schema:
@@ -35,7 +39,7 @@ Every run writes `.copilot-runs/<run-id>.usage.json` with this shared schema:
 {
   "run_id": "...",
   "backend": "cli" | "acp" | "sdk",
-  "model": "claude-opus-5",
+  "model": "gpt-5.6-sol",
   "exit_code": 0,
   "premium_requests": 7.5,
   "duration_s": 4.6,
@@ -57,9 +61,9 @@ Fields not available from the chosen backend are `null`. The `usage.sh` helper w
 Every run's last stdout line follows this shape:
 
 ```
-[exit 0 · cli/claude-opus-5 · premium 7.5 · in/out: 0/6 · 4.1s]
-[exit 0 · acp/claude-opus-5 · 7.2s]
-[exit 0 · sdk/claude-opus-5 · premium 7.50 · in/out: 24222/6 · cache: 11280↑/12936↓ · 4.6s]
+[exit 0 · cli/gpt-5.6-sol · premium 7.5 · in/out: 0/6 · 4.1s]
+[exit 0 · acp/gpt-5.6-sol · 7.2s]
+[exit 0 · sdk/gpt-5.6-sol · premium 7.50 · in/out: 24222/6 · cache: 11280↑/12936↓ · 4.6s]
 ```
 
 Fields omitted when unavailable. The orchestrator sees only this line + the assistant's final answer.

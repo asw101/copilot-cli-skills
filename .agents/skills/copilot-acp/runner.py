@@ -30,7 +30,7 @@ from pathlib import Path
 import acp
 
 
-DEFAULT_MODEL = os.environ.get("COPILOT_MODEL", "claude-opus-5")
+DEFAULT_MODEL = os.environ.get("COPILOT_MODEL", "gpt-5.6-sol")
 # ACP server caps reasoning effort per-model and rejects unsupported values.
 # Config is applied best-effort below: a rejected key is written to the
 # transcript and the run continues on the server default, so setting this

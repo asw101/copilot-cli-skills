@@ -17,7 +17,7 @@ Pause/resume uses the .ask/.answer protocol from /copilot. When a
 session id is captured, resume uses `copilot --resume <session>` so
 Copilot keeps its full prior context.
 
-Model defaults: claude-opus-5 with --reasoning-effort high and the
+Model defaults: gpt-5.6-sol with --reasoning-effort high and the
 long_context (1M) context tier.
 Overrides: COPILOT_MODEL, COPILOT_REASONING_EFFORT, COPILOT_CONTEXT_TIER.
 
@@ -32,7 +32,7 @@ import sys
 import time
 from pathlib import Path
 
-DEFAULT_MODEL = os.environ.get("COPILOT_MODEL", "claude-opus-5")
+DEFAULT_MODEL = os.environ.get("COPILOT_MODEL", "gpt-5.6-sol")
 DEFAULT_EFFORT = os.environ.get("COPILOT_REASONING_EFFORT", "high")
 
 # Context window tier. "long_context" selects the 1M window on models that

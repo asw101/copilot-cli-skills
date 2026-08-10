@@ -42,7 +42,7 @@ Identical layout to `/copilot-cli`, run-id prefixed with `-acp-`:
 
 ## Defaults
 
-- **Model**: `claude-opus-5` (env: `COPILOT_MODEL`).
+- **Model**: `gpt-5.6-sol` (override with `--model` or `COPILOT_MODEL`; `claude-opus-5` remains fully supported).
 - **Reasoning effort**: `high`. Probing the live server shows it accepts `none/low/medium/high/xhigh/max`; `high` is confirmed applied via config read-back.
 - **Context tier**: not supported. The server's only config options are `mode`, `model`, `reasoning_effort`, `allow_all`; `context_tier` is rejected as an unknown option. Use `cli` or `sdk` for the 1M window.
 - **allow_all**: `on` (session option, applied at session/new).

@@ -40,7 +40,7 @@ Pass stdout from the dispatcher straight back to the user; each backend already 
 ## Defaults
 
 - **Backend**: `cli`
-- **Model**: `claude-opus-5` (override: `--model`, env `COPILOT_MODEL`)
+- **Model**: `gpt-5.6-sol` on all three backends. Selection is per run via `--model` or `COPILOT_MODEL`; `--model claude-opus-5` remains fully supported.
 - **Reasoning effort**: `high` on all three backends (ACP verified by config read-back; SDK accepts up to `max`)
 - **Context tier**: `long_context` (1M) on `cli` and `sdk`. **Not available on `acp`** — the ACP server exposes only mode/model/reasoning_effort/allow_all, so ACP sessions always use the default window.
 
