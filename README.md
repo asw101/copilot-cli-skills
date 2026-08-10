@@ -27,7 +27,34 @@ bash .agents/skills/copilot/route.sh --compare "What's 7*9?"
 bash .agents/skills/copilot/route.sh --usage
 ```
 
-Auth is via `GH_TOKEN` (or whatever the `copilot` CLI picks up from `gh auth`).
+## Auth
+
+Set **`COPILOT_GITHUB_TOKEN`**. The CLI checks `COPILOT_GITHUB_TOKEN`, then
+`GH_TOKEN`, then `GITHUB_TOKEN`, then stored credentials from `copilot login`.
+
+Prefer the first one, because these skills do not proxy credentials — Copilot
+inherits the token from the environment, so **whatever that token can reach, a
+run can reach**. `GH_TOKEN` is also read by `gh`, which couples the two: a token
+broad enough for `gh` hands Copilot the same private-repo access, and a token
+narrow enough for Copilot breaks `gh`. `gh` ignores `COPILOT_GITHUB_TOKEN`, so
+using it keeps the two credentials independent.
+
+The token must be a fine-grained PAT with the **Copilot Requests** permission
+(classic `ghp_` tokens are not supported). It needs no repository access at all
+for the skills to work — granting none is the point. GitHub App installation
+tokens (`ghs_`) cannot be used: Copilot bills per user seat, and an installation
+token authenticates as the app, so no permission grant makes it work.
+
+```bash
+export COPILOT_GITHUB_TOKEN="$(cat ~/.config/copilot-token)"   # mode 0600
+```
+
+If no token is set in the environment, each `run.sh` loads one from
+`$COPILOT_TOKEN_FILE`, defaulting to `~/.config/copilot-token`. This matters for
+non-interactive use: cron, CI, and agent tool calls do not source an interactive
+shell profile, so an `export` in `~/.bashrc` alone would leave them falling back
+to whatever `copilot login` last stored — a different identity, failing quietly
+rather than loudly.
 
 ## Standardized stdout summary
 

@@ -28,7 +28,7 @@ If you're not sure which to use, use `/copilot-cli` — it's the workhorse.
 
 ## On every invocation
 
-1. **Bootstrap.** Run `bash .agents/skills/copilot-cli/run.sh --bootstrap`. Installs `copilot` if missing (official tarball at `https://gh.io/copilot-install`, lands in `~/.local/bin` for non-root), reports version, and confirms auth. Auth is via `GH_TOKEN` (pre-set in this environment).
+1. **Bootstrap.** Run `bash .agents/skills/copilot-cli/run.sh --bootstrap`. Installs `copilot` if missing (official tarball at `https://gh.io/copilot-install`, lands in `~/.local/bin` for non-root), reports version, and confirms auth. Auth is via `COPILOT_GITHUB_TOKEN` — see Auth below.
 2. **Dispatch.**
    - Sync: `bash .agents/skills/copilot-cli/run.sh [--model X] [--effort L] "<task>"`.
    - Multi: `bash .agents/skills/copilot-cli/multi.sh <comma-models> "<task>"`.
@@ -67,5 +67,5 @@ Shared across all three sibling skills so `check.sh` / `cancel.sh` work uniforml
 ## What this skill does NOT do
 
 - Doesn't keep the host agent warm. Bound background runs to minutes-to-hours; the host environment may reclaim on inactivity.
-- Doesn't proxy GitHub credentials. Copilot inherits `GH_TOKEN` directly from the env.
+- Doesn't proxy GitHub credentials. Copilot inherits its token directly from the env, so whatever that token can reach, a run can reach. Prefer `COPILOT_GITHUB_TOKEN` (see Auth) — with `GH_TOKEN` the same credential is shared with `gh`.
 - Doesn't intercept individual tool executions (binary auto-approves under `--allow-all-tools`). For per-tool approval, see `/copilot-acp`.

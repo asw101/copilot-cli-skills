@@ -15,6 +15,21 @@ RUNS_DIR="$REPO_ROOT/.copilot-runs"
 
 mkdir -p "$RUNS_DIR"
 
+# Resolve the Copilot credential before doing anything else. An interactive
+# profile is not sourced by cron, CI, or an agent's tool call, so without this a
+# non-interactive run inherits no token and silently falls back to whatever
+# `copilot login` last stored — possibly a different identity. Prefer
+# COPILOT_GITHUB_TOKEN over GH_TOKEN: gh ignores it, so a Copilot-only token
+# here cannot widen gh's access, and a broad gh token cannot leak into Copilot.
+if [ -z "${COPILOT_GITHUB_TOKEN:-}" ] && [ -z "${GH_TOKEN:-}" ] && [ -z "${GITHUB_TOKEN:-}" ]; then
+  _token_file="${COPILOT_TOKEN_FILE:-$HOME/.config/copilot-token}"
+  if [ -r "$_token_file" ]; then
+    COPILOT_GITHUB_TOKEN="$(cat "$_token_file")"
+    export COPILOT_GITHUB_TOKEN
+  fi
+  unset _token_file
+fi
+
 if [ "${1:-}" = "--bootstrap" ]; then
   exec bash "$SKILL_DIR/bootstrap.sh"
 fi

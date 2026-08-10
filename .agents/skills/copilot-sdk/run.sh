@@ -15,6 +15,17 @@ RUNNER="$SKILL_DIR/bin/runner"
 
 mkdir -p "$RUNS_DIR"
 
+# Resolve the Copilot credential before anything else; see copilot-cli/run.sh
+# for why COPILOT_GITHUB_TOKEN is preferred over GH_TOKEN.
+if [ -z "${COPILOT_GITHUB_TOKEN:-}" ] && [ -z "${GH_TOKEN:-}" ] && [ -z "${GITHUB_TOKEN:-}" ]; then
+  _token_file="${COPILOT_TOKEN_FILE:-$HOME/.config/copilot-token}"
+  if [ -r "$_token_file" ]; then
+    COPILOT_GITHUB_TOKEN="$(cat "$_token_file")"
+    export COPILOT_GITHUB_TOKEN
+  fi
+  unset _token_file
+fi
+
 if [ "${1:-}" = "--bootstrap" ]; then
   bash "$SHARED_BOOTSTRAP" || true
   echo "---"

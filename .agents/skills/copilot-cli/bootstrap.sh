@@ -72,7 +72,8 @@ bootstrap_copilot() {
     echo "copilot auth: ok (stored credentials at ~/.copilot)"
   else
     echo "copilot auth: NOT CONFIGURED"
-    echo "  set GH_TOKEN in the env, or run: copilot login"
+    echo "  set COPILOT_GITHUB_TOKEN in the env (preferred: gh ignores it, so a"
+    echo "  Copilot-only token here cannot widen gh's access), or: copilot login"
     missing=1
   fi
 
