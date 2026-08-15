@@ -65,6 +65,20 @@ fi
 
 TASK="$1"
 
+# Standing instructions prepended to every task.
+#
+# Copilot's system prompt carries a <git_commit_trailer> block telling it to
+# append `Co-authored-by: Copilot <...>` to commits it creates "unless the user
+# explicitly asks you not to include it". `includeCoAuthoredBy: false` in
+# ~/.copilot/settings.json does not reach this path — an SDK run on 2026-08-14
+# still received the instruction and put the trailer on five commits. Asking
+# explicitly is the documented escape hatch, so ask explicitly, every run.
+PREAMBLE='Do not add a `Co-authored-by: Copilot` trailer, or any other agent
+attribution trailer, to any commit message you create. Commit as the
+repository'"'"'s configured git identity, with no attribution footer.
+
+'
+
 slugify() {
   # Flatten newlines first: sed is line-oriented, so a multi-line task would
   # otherwise yield a multi-line slug and an unusable filename.
@@ -94,7 +108,10 @@ TASKFILE="$RUNS_DIR/$RUN_ID.task"
   echo
 } > "$TRANSCRIPT"
 
-printf '%s\n' "$TASK" > "$TASKFILE"
+# The runner sends TASKFILE verbatim, so the preamble goes here rather than
+# into TASK — keeping the slug and the transcript's "## Task" section showing
+# the task as it was actually given.
+printf '%s%s\n' "$PREAMBLE" "$TASK" > "$TASKFILE"
 printf 'running\n' > "$STATUS"
 
 echo "[run-id: $RUN_ID]"
