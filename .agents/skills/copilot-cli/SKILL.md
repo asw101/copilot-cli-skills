@@ -28,7 +28,7 @@ If you're not sure which to use, use `/copilot-cli` — it's the workhorse.
 
 ## On every invocation
 
-1. **Bootstrap.** Run `bash .agents/skills/copilot-cli/run.sh --bootstrap`. Installs `copilot` if missing (official tarball at `https://gh.io/copilot-install`, lands in `~/.local/bin` for non-root), reports version, and confirms auth. Auth is via `COPILOT_GITHUB_TOKEN` — see Auth below.
+1. **Bootstrap.** Run `bash .agents/skills/copilot-cli/run.sh --bootstrap`. Installs `copilot` if missing (official tarball at `https://gh.io/copilot-install`, lands in `~/.local/bin` for non-root), reports version, and probes the credential against the GitHub API. Auth is via `COPILOT_GITHUB_TOKEN` — see Auth below.
 2. **Dispatch.**
    - Sync: `bash .agents/skills/copilot-cli/run.sh [--model X] [--effort L] "<task>"`.
    - Multi: `bash .agents/skills/copilot-cli/multi.sh <comma-models> "<task>"`.
@@ -41,6 +41,25 @@ If you're not sure which to use, use `/copilot-cli` — it's the workhorse.
 - **Reasoning effort**: `high` (override: `--effort`, `COPILOT_REASONING_EFFORT`). Auto-skipped when the model doesn't support it (Haiku).
 - **Context tier**: `long_context` — the 1M window (override: `--context`, `COPILOT_CONTEXT_TIER`; `default` for the standard window). The CLI validates the value and errors on anything but `default`/`long_context`.
 - **Tool approval**: `--allow-all-tools` (required for non-interactive). Pause-for-input via the wrapper-prompt `.ask` protocol.
+
+## Auth
+
+Copilot inherits its credential from the environment; nothing here proxies or rewrites it.
+
+**Prefer `COPILOT_GITHUB_TOKEN`.** `gh` ignores that variable, so a Copilot-only token parked there cannot widen `gh`'s access — and, in the other direction, a broad `gh` token cannot leak into Copilot. `GH_TOKEN` / `GITHUB_TOKEN` are read as fallbacks, but they are one credential shared by both tools.
+
+**Token file.** When none of the three variables is set, `run.sh` (and its `/copilot-acp`, `/copilot-sdk` siblings) reads `COPILOT_TOKEN_FILE`, default `~/.config/copilot-token`, and exports its contents as `COPILOT_GITHUB_TOKEN`. That's the way to make a non-interactive run — cron, CI, another agent's tool call — pick up the right identity, since no interactive profile is sourced for it.
+
+**Preflight states.** `run.sh --bootstrap` does not test whether a variable is non-empty; it makes the same call Copilot makes when it validates a token at startup (fetch the authenticated user from the GitHub API) and prints exactly one machine-greppable state.
+
+| State | rc | Means | Do |
+|---|---|---|---|
+| `copilot auth: ready` | 0 | A token was found and the API accepted it. This rules out the sandbox credential (401/401-403), but it is **not** proof of the **Copilot Requests** permission — GitHub exposes no probe for that. | Nothing. If Copilot still 403s at startup, that permission is what's missing. |
+| `copilot auth: missing-tool` | 2 | The `copilot` binary is absent or unusable. | Re-run bootstrap; if it installed to `~/.local/bin`, put that on `PATH`. |
+| `copilot auth: missing-credential` | 3 | No token in the env or the token file. | Set `COPILOT_GITHUB_TOKEN` (fine-grained PAT with the **Copilot Requests** permission), or write it to the token file, or `copilot login`. |
+| `copilot auth: credential-present-but-unusable` | 4 | A token was found and the API rejected it — or the probe couldn't reach the API, in which case it fails closed rather than claim an unverified readiness. | Replace the token with a fine-grained PAT carrying **Copilot Requests**; the line names which variable supplied the bad token and what the API returned. |
+
+**The web-sandbox trap.** Hosted agent sandboxes (Claude Code on the web, and friends) always set `GH_TOKEN` to the session's own repo-scoped credential, which carries no Copilot entitlement. A presence test calls that "ok" and the run then dies with a 403 deep inside Copilot's startup validation, far from where it's cheap to read — hence the probe, and hence `credential-present-but-unusable`. In those environments, set `COPILOT_GITHUB_TOKEN` explicitly.
 
 ## Run-files protocol (`.copilot-runs/<run-id>.*`)
 
